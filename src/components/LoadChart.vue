@@ -23,6 +23,7 @@ import { useAppStore } from '@/stores/app'
 import { useNodesStore } from '@/stores/nodes'
 import { getChartSeriesPalette, getLoadChartPalette } from '@/utils/chartPalette'
 import { formatBytes, formatBytesSplit } from '@/utils/helper'
+import { gpuUsageFromStatus } from '@/utils/gpuHelper'
 import { comparePingTaskOrder, createPingTaskOrderMap, metricTags, normalizeMetricSeriesList } from '@/utils/metricSeries'
 import { fillMissingTimePoints } from '@/utils/recordHelper'
 import { getSharedRpc } from '@/utils/rpc'
@@ -291,12 +292,13 @@ function gpuDetailsFromStatus(record: StatusRecord): RecordFormat['gpu_detailed'
 function statusToRecordFormat(records: StatusRecord[]): RecordFormat[] {
   return records.map((r) => {
     const gpuDetailed = gpuDetailsFromStatus(r)
+    const gpu = metricValue(gpuUsageFromStatus(r))
     return {
       client: r.client,
       time: r.time,
       cpu: metricValue(r.cpu),
-      gpu: metricValue(r.gpu_average_usage ?? r.gpu),
-      gpu_usage: metricValue(r.gpu_average_usage ?? r.gpu),
+      gpu,
+      gpu_usage: gpu,
       gpu_memory: null,
       gpu_detailed: gpuDetailed,
       ram: metricValue(r.ram),
